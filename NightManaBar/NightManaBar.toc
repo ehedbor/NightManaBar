@@ -1,0 +1,11 @@
+## Interface: 11302
+## Title: NightManaBar
+## Notes: Changes the color of the mana bar at night.
+## Author: skillxception
+## Version: 1.0
+## SavedVariables: NightManaBarDB
+
+embeds.xml
+
+Core.lua
+Config.lua
