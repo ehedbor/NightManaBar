@@ -1,7 +1,7 @@
-local NightManaBar = LibStub("AceAddon-3.0"):NewAddon("NightManaBar", 
-    "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
+local NightManaBar = LibStub("AceAddon-3.0"):NewAddon(
+                         "NightManaBar", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
 
-local ManaBars = {
+local PowerBars = {
     player = PlayerFrameManaBar,
     pet = PetFrameManaBar,
     target = TargetFrameManaBar,
@@ -13,9 +13,9 @@ local ManaBars = {
 }
 
 local RegisteredEvents = {
-    -- "PLAYER_ENTERING_WORLD",
-    -- "PLAYER_TARGET_CHANGED",
-    -- "UPDATE_SHAPESHIFT_FORM",
+    "PLAYER_ENTERING_WORLD",
+    "PLAYER_TARGET_CHANGED",
+    "UPDATE_SHAPESHIFT_FORM",
     "UNIT_DISPLAYPOWER", -- Called when the power type changes
     "UNIT_MAXPOWER", -- Called when the max power changes
     "UNIT_POWER_UPDATE" -- Called when the current power updates 
@@ -24,13 +24,13 @@ local RegisteredEvents = {
 function NightManaBar:OnInitialize()
     self:RegisterConfig()
     for _, event in ipairs(RegisteredEvents) do
-        self:RegisterEvent(event, "UpdateManaBarColor")
+        self:RegisterEvent(event, "UpdatePowerBarColor")
     end
 end
 
 function NightManaBar:OnEnable()
-    self:UpdateManaBarColor()
-    self.timer = self:ScheduleRepeatingTimer("UpdateManaBarColor", 1)
+    self:UpdatePowerBarColor()
+    self.timer = self:ScheduleRepeatingTimer("UpdatePowerBarColor", 1)
 end
 
 local function GetMinutes(hour, minute) return 60 * hour + minute end
@@ -57,17 +57,23 @@ local function IsTimeBetween(time, start, stop)
     return (curTVal >= StartTVal and curTVal <= StopTVal)
 end
 
-function NightManaBar:UpdateManaBarColor()
+function NightManaBar:UpdatePowerBarColor()
     local isNight = not IsTimeBetween(
-        self:GetCurrentTime(), self.db.profile.sunrise, self.db.profile.sunset)
-    for unitid, manaBar in pairs(ManaBars) do
+                        self:GetCurrentTime(), self.db.profile.sunrise, self.db.profile.sunset)
+    for unitid, powerBar in pairs(PowerBars) do
         local _, powerToken = UnitPowerType(unitid)
         if powerToken ~= nil then
             local c = PowerBarColor[powerToken]
-            if isNight and powerToken == "MANA" then
-                c = self.db.profile.nightManaBarColor
+            if isNight then
+                if powerToken == "MANA" then
+                    c = self.db.profile.color.mana
+                elseif powerToken == "RAGE" then
+                    c = self.db.profile.color.rage
+                elseif powerToken == "ENERGY" then
+                    c = self.db.profile.color.energy
+                end
             end
-            manaBar:SetStatusBarColor(c.r, c.g, c.b)
+            powerBar:SetStatusBarColor(c.r, c.g, c.b)
         end
     end
 end

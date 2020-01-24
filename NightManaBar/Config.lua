@@ -25,13 +25,39 @@ NightManaBar.options = {
             type = "group",
             name = "General",
             args = {
+                nightColorLabel = {
+                    type = "header",
+                    name = "Night Colors",
+                    order = 1000
+                },
                 nightManaBarColor = {
                     type = "color",
-                    name = "Mana Bar Color (Night)",
+                    name = "Mana",
                     order = 1100,
                     width = "full",
-                    get = "GetNightManaBarColor",
-                    set = "SetNightManaBarColor"
+                    get = function(info) return NightManaBar:GetColor("mana") end,
+                    set = function(info, r, g, b) return NightManaBar:SetColor("mana", r, g, b) end
+                },
+                nightRageBarColor = {
+                    type = "color",
+                    name = "Rage",
+                    order = 1200,
+                    width = "full",
+                    get = function(info) return NightManaBar:GetColor("rage") end,
+                    set = function(info, r, g, b) return NightManaBar:SetColor("rage", r, g, b) end
+                },
+                nightEnergyBarColor = {
+                    type = "color",
+                    name = "Energy",
+                    order = 1300,
+                    width = "full",
+                    get = function(info) return NightManaBar:GetColor("energy") end,
+                    set = function(info, r, g, b) return NightManaBar:SetColor("energy", r, g, b) end
+                },
+                timeLabel = {
+                    type = "header",
+                    name = "Time",
+                    order = 2000
                 },
                 sunriseLabel = {
                     type = "description",
@@ -45,8 +71,8 @@ NightManaBar.options = {
                     order = 2120,
                     width = TimeSelectorWidth,
                     values = Hours,
-                    get = "GetSunriseHour",
-                    set = "SetSunriseHour"
+                    get = function(info) return NightManaBar:GetTime("sunrise", "hour") end,
+                    set = function(info, v) return NightManaBar:SetTime("sunrise", "hour", v) end
                 },
                 sunriseMinute = {
                     type = "select",
@@ -54,8 +80,8 @@ NightManaBar.options = {
                     order = 2130,
                     width = TimeSelectorWidth,
                     values = Minutes,
-                    get = "GetSunriseMinute",
-                    set = "SetSunriseMinute"
+                    get = function(info) return NightManaBar:GetTime("sunrise", "minute") end,
+                    set = function(info, v) return NightManaBar:SetTime("sunrise", "minute", v) end
                 },
                 sunsetLabel = {
                     type = "description",
@@ -69,8 +95,8 @@ NightManaBar.options = {
                     order = 2220,
                     width = TimeSelectorWidth,
                     values = Hours,
-                    get = "GetSunsetHour",
-                    set = "SetSunsetHour"
+                    get = function(info) return NightManaBar:GetTime("sunset", "hour") end,
+                    set = function(info, v) return NightManaBar:SetTime("sunset", "hour", v) end
                 },
                 sunsetMinute = {
                     type = "select",
@@ -78,8 +104,8 @@ NightManaBar.options = {
                     order = 2230,
                     width = TimeSelectorWidth,
                     values = Minutes,
-                    get = "GetSunsetMinute",
-                    set = "SetSunsetMinute"
+                    get = function(info) return NightManaBar:GetTime("sunset", "minute") end,
+                    set = function(info, v) return NightManaBar:SetTime("sunset", "minute", v) end
                 },
                 is24HourMode = {
                     type = "toggle",
@@ -98,12 +124,16 @@ NightManaBar.options = {
                     get = "GetUseLocalTime",
                     set = "SetUseLocalTime"
                 },
-                resetHeader = {type = "header", name = "Reset NightManaBar", order = 3210},
+                resetHeader = {
+                    type = "header",
+                    name = "Reset NightManaBar", 
+                    order = 3000
+                },
                 reset = {
                     type = "execute",
                     name = "Reset to Defaults",
                     desc = "Clicking this button will reset all options to their default values.",
-                    order = 3220,
+                    order = 3100,
                     confirm = true,
                     func = "ResetConfig"
                 }
@@ -114,9 +144,13 @@ NightManaBar.options = {
 
 NightManaBar.defaults = {
     profile = {
-        nightManaBarColor = {r = 100 / 255, g = 100 / 255, b = 1.00},
-        sunrise = {hour = 5, minute = 30},
-        sunset = {hour = 21, minute = 0},
+        color = {
+            mana =   {r = 0.4, g = 0.4, b = 1.0},
+            rage =   {r = 1.0, g = 0.0, b = 0.0},
+            energy = {r = 1.0, g = 1.0, b = 0.0}
+        },
+        sunrise = {hour = 07, minute = 30},
+        sunset =  {hour = 21, minute = 00},
         useLocalTime = false
     }
 }
@@ -132,24 +166,33 @@ end
 
 function NightManaBar:ResetConfig(info) self.db:ResetProfile() end
 
-function NightManaBar:GetNightManaBarColor(info)
-    local color = self.db.profile.nightManaBarColor
-    return color.r, color.g, color.b, 1.0
+function NightManaBar:GetColor(powerType) 
+    self:Print("GetColor: " .. powerType)
+    for k,v in pairs(self.db.profile.color) do
+        local s = ""
+        for k, v in pairs(self.db.profile.color[k]) do
+            s = s .. k .. "=" .. v .. ", " 
+        end
+        self:Print(k .. ": " .. s)
+    end
+    
+    local c = self.db.profile.color[powerType]
+    return c.r, c.g, c.b, 1.0
 end
 
-function NightManaBar:SetNightManaBarColor(info, r, g, b)
-    self.db.profile.nightManaBarColor = {r = r, g = g, b = b}
+function NightManaBar:SetColor(powerType, r, g, b) 
+    self:Print("SetColor: " .. powerType .."("..r..", " ..g..", " ..b..")")
+
+    self.db.profile.color[powerType] = {r = r, g = g, b = b}
 end
 
-function NightManaBar:GetSunriseHour(info) return self.db.profile.sunrise.hour end
-function NightManaBar:SetSunriseHour(info, value) self.db.profile.sunrise.hour = value end
-function NightManaBar:GetSunriseMinute(info) return self.db.profile.sunrise.minute end
-function NightManaBar:SetSunriseMinute(info, value) self.db.profile.sunrise.minute = value end
+function NightManaBar:GetTime(timeOfDay, timePeriod)
+    return self.db.profile[timeOfDay][timePeriod]
+end
 
-function NightManaBar:GetSunsetHour(info) return self.db.profile.sunset.hour end
-function NightManaBar:SetSunsetHour(info, value) self.db.profile.sunset.hour = value end
-function NightManaBar:GetSunsetMinute(info) return self.db.profile.sunset.minute end
-function NightManaBar:SetSunsetMinute(info, value) self.db.profile.sunset.minute = value end
+function NightManaBar:SetTime(timeOfDay, timePeriod, value) 
+    self.db.profile[timeOfDay][timePeriod] = value
+end
 
 function NightManaBar:GetUseLocalTime(info) return self.db.profile.useLocalTime end
 function NightManaBar:SetUseLocalTime(info, value) self.db.profile.useLocalTime = value end
