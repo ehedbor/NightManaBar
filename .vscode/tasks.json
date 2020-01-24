@@ -9,16 +9,17 @@
             "command": "Copy-Item",
             "args": [
                 "-Path",
-                    "${workspaceRoot}/NightManaBar",
-                 "-Destination", 
-                    "C:/Program Files (x86)/World of Warcraft/_classic_/Interface/AddOns",
+                "${workspaceRoot}/NightManaBar",
+                "-Destination",
+                "C:/Program Files (x86)/World of Warcraft/_classic_/Interface/AddOns",
                 "-Recurse",
                 "-Force"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "problemMatcher": []
         }
     ]
 }

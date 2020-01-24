@@ -1,0 +1,7 @@
+column_limit: 100
+align_args: false
+align_parameter: false
+keep_simple_control_block_one_line: false
+keep_simple_function_one_line: true
+break_after_functioncall_lp: true
+break_after_functiondef_lp: true
