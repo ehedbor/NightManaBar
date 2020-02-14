@@ -145,35 +145,34 @@ NightManaBar.options = {
 NightManaBar.defaults = {
     profile = {
         color = {
-            mana =   {r = 0.4, g = 0.4, b = 1.0},
-            rage =   {r = 1.0, g = 0.0, b = 0.0},
+            mana   = {r = 0.4, g = 0.4, b = 1.0},
+            rage   = {r = 1.0, g = 0.0, b = 0.0},
             energy = {r = 1.0, g = 1.0, b = 0.0}
         },
         sunrise = {hour = 07, minute = 30},
-        sunset =  {hour = 21, minute = 00},
+        sunset  = {hour = 21, minute = 00},
         useLocalTime = false
     }
 }
 
 function NightManaBar:RegisterConfig()
+    -- Create the database to allow config saving 
     self.db = AceDB:New("NightManaBarDB", self.defaults)
-
+    -- Register the options table above and add it to the Interface>Addons config menu
     AceConfig:RegisterOptionsTable("NightManaBar", self.options)
     AceConfigDialog:AddToBlizOptions("NightManaBar")
-
+    -- Add profile configuration directly to the options table
     self.options.args.profiles = AceDBOptions:GetOptionsTable(self.db)
 end
 
 function NightManaBar:ResetConfig(info) self.db:ResetProfile() end
 
 function NightManaBar:GetColor(powerType) 
-    self:Print("GetColor: " .. powerType)
     for k,v in pairs(self.db.profile.color) do
         local s = ""
         for k, v in pairs(self.db.profile.color[k]) do
             s = s .. k .. "=" .. v .. ", " 
         end
-        self:Print(k .. ": " .. s)
     end
     
     local c = self.db.profile.color[powerType]
@@ -181,8 +180,6 @@ function NightManaBar:GetColor(powerType)
 end
 
 function NightManaBar:SetColor(powerType, r, g, b) 
-    self:Print("SetColor: " .. powerType .."("..r..", " ..g..", " ..b..")")
-
     self.db.profile.color[powerType] = {r = r, g = g, b = b}
 end
 
