@@ -3,6 +3,7 @@ A WoW (Classic) addon that changes the resource bar's color at night time. You c
  - Sunrise and Sunset times.
  - Use local time or server time.
  - Night colors for mana, rage, and energy.
+ 
 This addon also supports profiles.
 
 ## Installation
